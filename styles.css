@@ -1,0 +1,26 @@
+body {
+	padding-top: 2rem;
+}
+
+main {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	align-items: center;
+	margin-inline: 0.5rem;
+}
+
+h1 {
+	font-family: sans-serif;
+	color: #000040;
+	text-transform: uppercase;
+}
+
+@media (max-width: 440px) {
+	h1 {
+		font-size: 1.5rem;
+	}
+	main {
+		gap: 1rem;
+	}
+}
