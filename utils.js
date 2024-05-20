@@ -19,12 +19,10 @@ export async function checkPincode(pincode) {
 	return fetch(`https://api.postalpincode.in/pincode/${pincode}`)
 		.then((res) => res.json())
 		.then((data) => {
-			console.log('data', data);
+			let success = data[0].Status === 'Success';
 
-			let Success = data[0].Status === 'Success';
-
-			if (!Success) {
-				return 'Enter valid pincode';
+			if (!success) {
+				return { valid: false, message: 'Enter valid pincode' };
 			} else {
 				let postoffices = data[0]['PostOffice'];
 				let postoffice = postoffices[0];
@@ -38,8 +36,13 @@ export async function checkPincode(pincode) {
 						.slice(0, Math.min(2, deliveryAvaliablePostoffices.length))
 						.reduce((names, { Name }, index) => (names += `${index !== 0 ? '/' : ''}${Name}`), '');
 
-					return `Deliver to ${postoffice.Pincode}, ${name}, ${postoffice.State}.`;
+					return { valid: true, message: `Deliver to ${postoffice.Pincode}, ${name}, ${postoffice.State}.` };
 				}
 			}
+		})
+		.catch((err) => {
+			console.log('Entered catch block');
+			console.log(err);
+			return { valid: false, message: 'Something went wrong' };
 		});
 }

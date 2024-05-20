@@ -22,7 +22,7 @@ class PincodeChecker extends HTMLElement {
 			autocomplete: 'off',
 		});
 
-		let icon = createElem('img', { class: 'icon', src: './check-mark-icon.svg', alt: '' });
+		let icon = createElem('img', { class: 'icon', src: './assets/check-mark-icon.svg', alt: '' });
 		let div = createElem('div', { class: 'input-wrapper' }, '', [input, icon]);
 
 		let button = createElem('button', { id: 'check-btn' }, 'Check');
@@ -47,47 +47,52 @@ class PincodeChecker extends HTMLElement {
 		// ON CLICKING CHECK PINCODE
 		form.addEventListener('submit', async (e) => {
 			e.preventDefault();
-			toggleLoading();
 
 			if (isNaN(input.value)) {
-				insertDescription('Enter numbers only', 'red');
+				insertDescription('Enter numbers only', false);
 				return;
 			}
-
-			let deliveryDescription = await checkPincode(input.value);
-			let isValid = deliveryDescription !== 'Enter valid pincode';
-
-			this.setAttribute('valid', isValid ? 'true' : 'false');
-
-			removeDescription();
 			toggleLoading();
-			insertDescription(deliveryDescription, isValid ? 'green' : 'red');
+
+			let { valid, message: deliveryDescription } = await checkPincode(input.value);
+			// let isValid = deliveryDescription !== 'Enter valid pincode'  ;
+
+			this.setAttribute('valid', valid ? 'true' : 'false');
+
+			// removeDescription();
+			toggleLoading();
+			insertDescription(deliveryDescription, valid);
 		});
 
 		// REMOVES DELIVERY DESCRIPTION
 		function removeDescription() {
 			p.innerText = '';
 			input.style.borderColor = '#000040';
-			input.style.backgroundColor = 'inherit';
+			input.style.backgroundColor = 'initial';
 			icon.style.visibility = 'hidden';
 		}
 
 		// ADDS DELIVERY DESCRIPTION
-		function insertDescription(message, color) {
-			let validationColor = color === 'red' ? 'rgb(172, 3, 3)' : 'rgb(11, 126, 46)';
-			icon.src = color === 'red' ? './wrong-icon.svg' : './check-mark-icon.svg';
+		function insertDescription(message, valid) {
+			let validationColor = !valid ? 'rgb(172, 3, 3)' : 'rgb(11, 126, 46)';
+			icon.src = !valid ? './assets/wrong-icon.svg' : './assets/check-mark-icon.svg';
 			p.style.color = validationColor;
 			input.style.borderColor = validationColor;
-			input.style.backgroundColor = color === 'red' ? 'rgba(220, 8, 8,0.2)' : 'rgba(11, 126, 46,0.2)';
+			input.style.backgroundColor = !valid ? 'rgba(220, 8, 8,0.2)' : 'rgba(11, 126, 46,0.2)';
 			p.innerText = message;
 			icon.style.visibility = 'visible';
 		}
 
 		function toggleLoading() {
+			icon.src = './assets/loading-icon.svg';
 			if (button.classList.contains('loading')) {
+				icon.style.visibility = 'hidden';
+				icon.classList.remove('rotate-anim');
 				button.classList.remove('loading');
 			} else {
 				button.classList.add('loading');
+				icon.style.visibility = 'visible';
+				icon.classList.add('rotate-anim');
 			}
 		}
 		/*
